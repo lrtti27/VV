@@ -4,6 +4,8 @@ VV is a terminal-based, interactive file explorer written in C++. It allows user
 
 ![Alt text](assets/example.png)
 
+![Alt text](assets/vvgif.gif)
+
 
 ## Features
 - Navigate directories interactively in the terminal.
