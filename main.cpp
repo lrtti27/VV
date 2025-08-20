@@ -25,12 +25,20 @@ int main() {
     int currentIndex = 0;
     int ch;
 
-    vvUtils::vvPrint(*currentEntry, currentIndex);
-
+    //vvUtils::vvPrint(*currentEntry, currentIndex);
+    int y = 0;
+    vvUtils::vvPrintAll2(*rootEntry , *currentEntry ,currentIndex , 0,0 ,y);
     while ((ch = getch()) != 'q') {
         switch(ch) {
             case KEY_UP:
                 currentIndex--;
+                //We want to be able to traverse up outside of current dir
+                if (currentIndex < 0) {
+                    //Update currentEntry to be parent, update currentIndex to be size of parents children
+                    currentEntry = currentEntry -> getParent();
+                    //We somehow need the previous index, fo now zero
+                    currentIndex = 0;
+                }
                 currentIndex = std::max(0, currentIndex);
                 break;
             case KEY_DOWN:
@@ -61,7 +69,11 @@ int main() {
                 break;
         }
 
-        vvUtils::vvPrint(*currentEntry, currentIndex);
+        //vvUtils::vvPrint(*currentEntry, currentIndex);
+        clear();
+        y = 0;
+        vvUtils::vvPrintAll2(*rootEntry , *currentEntry , currentIndex ,0, 0 , y);
+        refresh();
     }
 
     endwin();

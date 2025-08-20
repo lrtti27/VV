@@ -24,6 +24,8 @@ public:
     void setParent(std::shared_ptr<FileEntry> parent);
     void addChild(const std::shared_ptr<FileEntry>& child);
     std::string toString() const;
+
+    bool operator==(const FileEntry& other) const;
 private:
     fs::path m_path;
     std::string m_name;

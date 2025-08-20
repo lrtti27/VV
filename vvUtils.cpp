@@ -44,6 +44,90 @@ namespace vvUtils {
         }
         refresh();
     }
+    void vvPrintAll2(const FileEntry& root , const FileEntry& current ,int currentIndex , bool indexMatch ,int xOffset , int& yOffset) {
+        //Enable attributes
+        if (root.isDir()) {
+            attron(A_BOLD);
+        }
+        if (indexMatch) {
+            attron(COLOR_PAIR(1));
+        }
+
+        //Print the current entry
+        std::string entryStr = root.getName();
+        mvprintw(yOffset, xOffset, "%s", entryStr.c_str());
+
+        //Disable attributes
+        if (indexMatch) {
+            attroff(COLOR_PAIR(1));
+        }
+
+        if (root.isDir()) {
+            attroff(A_BOLD);
+        }
+
+        //Update yOffset
+        yOffset++;
+
+
+        //Now recurse over each of the children , each of which should be printed with new xOffset corresp to parent
+        auto children = root.getChildren();
+        if (children.size() > 0) {
+            int idx = 0;
+            for (const auto& child : root.getChildren()) {
+                if (idx == currentIndex && root == current) {
+                    vvPrintAll2(*child , current , currentIndex , true,xOffset + 3 , yOffset);
+                }
+                else {
+                    vvPrintAll2(*child , current , currentIndex , false,xOffset + 3 , yOffset);
+                }
+                idx++;
+            }
+        }
+
+
+    }
+    void vvPrintAll(const FileEntry& root , const FileEntry& current , int currentIndex , bool isCurrent , int xOffset , int& yOffset) {
+
+        //Print root in bold
+        attron(A_BOLD);
+        std::string absPath = root.getName();
+        mvprintw(yOffset, xOffset, "%s", absPath.c_str());
+        attroff(A_BOLD);
+
+        //Update y offset after print
+        yOffset++;
+
+        //Recursively go through children and do the same
+        for (int i = 0; i < root.getChildren().size(); ++i) {
+            bool isLast = (i == root.getChildren().size() - 1);
+            if (i == currentIndex && current == root) {
+                attron(COLOR_PAIR(1));
+            }
+            else {
+                attroff(COLOR_PAIR(1));
+            }
+            //Check if this child is a directory, if so, recurse and print
+            if (root.getChildren()[i] -> isDir()) {
+                //Call printall with this as root and a +1 x offset
+                vvPrintAll(*root.getChildren()[i] , current , currentIndex, false , xOffset + 3 , yOffset);
+            }
+            else {
+                //Check if the root is equal to current
+
+                mvprintw(yOffset, xOffset + 3 , root.getChildren()[i] -> getName().c_str());
+
+                yOffset++;
+            }
+
+            if (i == currentIndex && current == root) {
+                attroff(COLOR_PAIR(1));
+            }
+
+        }
+
+        refresh();
+    }
 
     void populateChildren(FileEntry& entry) {
         if (entry.isDir() && entry.getChildren().empty()) {

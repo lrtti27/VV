@@ -41,3 +41,7 @@ std::string FileEntry::toString() const {
     res += "Children: " + std::to_string(m_children.size()) + "\n";
     return res;
 }
+
+bool FileEntry::operator==(const FileEntry& other) const {
+    return m_path == other.m_path;
+}

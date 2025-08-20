@@ -12,6 +12,8 @@
 
 namespace vvUtils{
     void vvPrint(const FileEntry& entry , int currentIndex);
+    void vvPrintAll(const FileEntry& root , const FileEntry& current , int currentIndex , bool isCurrent , int xOffset , int& yOffset );
+    void vvPrintAll2(const FileEntry& root , const FileEntry& current ,int currentIndex , bool indexMatch ,int xOffset , int& yOffset);
     void populateChildren(FileEntry& entry);
     std::shared_ptr<FileEntry> createFileEntry(const fs::path& path);
     std::shared_ptr<FileEntry> createRootEntry(const fs::path &path);
