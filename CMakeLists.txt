@@ -7,7 +7,9 @@ add_executable(vv main.cpp
         vvUtils.cpp
         vvUtils.h
         FileEntry.cpp
-        FileEntry.h)
+        FileEntry.h
+        VVApp.cpp
+        VVApp.h)
 
 find_package(Curses REQUIRED)
 target_link_libraries(vv PRIVATE ${CURSES_LIBRARIES})
