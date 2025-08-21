@@ -44,7 +44,22 @@ namespace vvUtils {
         }
         refresh();
     }
-    void vvPrintAll2(const FileEntry& root , const FileEntry& current ,int currentIndex , bool indexMatch ,int xOffset , int& yOffset) {
+    void vvPrintAll(const FileEntry& root , const FileEntry& current ,int currentIndex , bool indexMatch ,int xOffset , int& yOffset) {
+
+        printEntry(root , current , currentIndex , indexMatch , xOffset , yOffset);
+        //Update yOffset
+        yOffset++;
+
+        //Now recurse over each of the children , each of which should be printed with new xOffset corresp to parent
+        auto children = root.getChildren();
+        for (int i = 0; i < children.size(); ++i) {
+            auto& child = children[i];
+            bool match = i == currentIndex && root == current;
+            vvPrintAll(*child , current , currentIndex , match , xOffset + 3 , yOffset);
+        }
+    }
+
+    void printEntry(const FileEntry& root , const FileEntry& current ,int currentIndex , bool indexMatch ,int xOffset , int& yOffset) {
         //Enable attributes
         if (root.isDir()) {
             attron(A_BOLD);
@@ -65,77 +80,29 @@ namespace vvUtils {
         if (root.isDir()) {
             attroff(A_BOLD);
         }
-
-        //Update yOffset
-        yOffset++;
-
-
-        //Now recurse over each of the children , each of which should be printed with new xOffset corresp to parent
-        auto children = root.getChildren();
-        if (children.size() > 0) {
-            int idx = 0;
-            for (const auto& child : root.getChildren()) {
-                if (idx == currentIndex && root == current) {
-                    vvPrintAll2(*child , current , currentIndex , true,xOffset + 3 , yOffset);
-                }
-                else {
-                    vvPrintAll2(*child , current , currentIndex , false,xOffset + 3 , yOffset);
-                }
-                idx++;
-            }
-        }
-
-
-    }
-    void vvPrintAll(const FileEntry& root , const FileEntry& current , int currentIndex , bool isCurrent , int xOffset , int& yOffset) {
-
-        //Print root in bold
-        attron(A_BOLD);
-        std::string absPath = root.getName();
-        mvprintw(yOffset, xOffset, "%s", absPath.c_str());
-        attroff(A_BOLD);
-
-        //Update y offset after print
-        yOffset++;
-
-        //Recursively go through children and do the same
-        for (int i = 0; i < root.getChildren().size(); ++i) {
-            bool isLast = (i == root.getChildren().size() - 1);
-            if (i == currentIndex && current == root) {
-                attron(COLOR_PAIR(1));
-            }
-            else {
-                attroff(COLOR_PAIR(1));
-            }
-            //Check if this child is a directory, if so, recurse and print
-            if (root.getChildren()[i] -> isDir()) {
-                //Call printall with this as root and a +1 x offset
-                vvPrintAll(*root.getChildren()[i] , current , currentIndex, false , xOffset + 3 , yOffset);
-            }
-            else {
-                //Check if the root is equal to current
-
-                mvprintw(yOffset, xOffset + 3 , root.getChildren()[i] -> getName().c_str());
-
-                yOffset++;
-            }
-
-            if (i == currentIndex && current == root) {
-                attroff(COLOR_PAIR(1));
-            }
-
-        }
-
-        refresh();
     }
 
     void populateChildren(FileEntry& entry) {
-        if (entry.isDir() && entry.getChildren().empty()) {
+        if (entry.isDir()) {
             for (const auto& file : fs::directory_iterator(entry.getPath())) {
                 auto child = createFileEntry(file.path());
                 entry.addChild(child);
             }
         }
+    }
+
+   bool isEmptyDirectory(FileEntry& entry) {
+        return entry.isDir() && fs::is_empty(entry.getPath());
+    }
+
+    int findIndexInParentList(const FileEntry& currentEntry) {
+        //Get index of currentEntry in its parent array
+        for (int i = 0; i < currentEntry.getParent() -> getChildren().size(); i++) {
+            if (*(currentEntry.getParent() -> getChildren()[i]) == currentEntry) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 

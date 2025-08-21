@@ -33,6 +33,18 @@ void FileEntry::addChild(const std::shared_ptr<FileEntry>& child) {
     m_children.push_back(child);
 }
 
+void FileEntry::clearChildren() {
+    m_children.clear();
+}
+
+int FileEntry::getRelativeIndex() const {
+    return m_relativeIndex;
+}
+
+void FileEntry::setRelativeIndex(int index) {
+    m_relativeIndex = index;
+}
+
 std::string FileEntry::toString() const {
     std::string res;
     res += "FileEntry: " + m_name + "\n";

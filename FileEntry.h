@@ -23,6 +23,9 @@ public:
     std::shared_ptr<FileEntry> getParent() const;
     void setParent(std::shared_ptr<FileEntry> parent);
     void addChild(const std::shared_ptr<FileEntry>& child);
+    void clearChildren();
+    int getRelativeIndex() const;
+    void setRelativeIndex(int index);
     std::string toString() const;
 
     bool operator==(const FileEntry& other) const;
@@ -32,6 +35,7 @@ private:
     bool m_isDir;
     std::vector<std::shared_ptr<FileEntry>> m_children;
     std::weak_ptr<FileEntry> m_parent; // weak_ptr prevents circular reference
+    int m_relativeIndex;
 };
 
 

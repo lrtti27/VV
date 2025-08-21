@@ -27,17 +27,16 @@ int main() {
 
     //vvUtils::vvPrint(*currentEntry, currentIndex);
     int y = 0;
-    vvUtils::vvPrintAll2(*rootEntry , *currentEntry ,currentIndex , 0,0 ,y);
+    vvUtils::vvPrintAll(*rootEntry , *currentEntry ,currentIndex , 0,0 ,y);
     while ((ch = getch()) != 'q') {
         switch(ch) {
             case KEY_UP:
                 currentIndex--;
                 //We want to be able to traverse up outside of current dir
                 if (currentIndex < 0) {
+                    currentIndex = vvUtils::findIndexInParentList(*currentEntry);
                     //Update currentEntry to be parent, update currentIndex to be size of parents children
                     currentEntry = currentEntry -> getParent();
-                    //We somehow need the previous index, fo now zero
-                    currentIndex = 0;
                 }
                 currentIndex = std::max(0, currentIndex);
                 break;
@@ -47,14 +46,29 @@ int main() {
                 break;
             case KEY_ENTER:
             case 10:
+                //If the entry is a directory and has no children in the file system, do fucking nothing
+                if (vvUtils::isEmptyDirectory(*currentEntry -> getChildren()[currentIndex])) {
+                    break;
+                }
+
                 //Update the current entry to be the selected one
                 currentEntry = currentEntry -> getChildren()[currentIndex];
-                //Now, we need to populate the children of this entry
-                //Check if we already have children from previous traversal
+                //If it is a file, do nothing
+                if (!currentEntry -> isDir())   break;
+
+                //If it doesn't have children, we have not opened it yet
                 if (currentEntry -> getChildren().empty()) {
                     vvUtils::populateChildren(*currentEntry);
+                    currentIndex = 0;   //Set cursor to first entry
                 }
-                currentIndex = 0;
+                //If it does have children, we must close it
+                else {
+                    currentEntry -> clearChildren();
+
+                    currentIndex = vvUtils::findIndexInParentList(*currentEntry);
+                    //Transfer current entry to be currentEntry's parent IMPORTANT
+                    currentEntry = currentEntry -> getParent();
+                }
                 break;
             case KEY_BACKSPACE:
             case 127: {
@@ -72,7 +86,7 @@ int main() {
         //vvUtils::vvPrint(*currentEntry, currentIndex);
         clear();
         y = 0;
-        vvUtils::vvPrintAll2(*rootEntry , *currentEntry , currentIndex ,0, 0 , y);
+        vvUtils::vvPrintAll(*rootEntry , *currentEntry , currentIndex ,0, 0 , y);
         refresh();
     }
 
